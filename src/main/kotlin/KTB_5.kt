@@ -38,12 +38,18 @@ fun main() {
         val input = scanner.nextLine()
         when (input) {
             "1" -> println("Вы выбрали пункт 'Учить слова'")
-            "2" -> println("Вы выбрали пункт 'Статистика'")
+            "2" -> {
+                val learnedWords = dictionary.filter { it.correctAnswersCount >= 3 }
+                val totalCount = dictionary.size
+                val learnedCount = learnedWords.size
+                val percent = if (totalCount > 0) (learnedCount.toDouble() / totalCount * 100).toInt() else 0
+                println("Выучено $learnedCount из $totalCount слов | $percent%")
+                println()
+            }
             "0" -> {
                 println("Выход из программы...")
                 return
             }
-
             else -> println("Предупреждение: Введите число 1, 2 или 0")
         }
     }
