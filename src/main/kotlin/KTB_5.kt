@@ -10,6 +10,7 @@ data class Word(
 fun loadDictionary(): List<Word> {
     val filename = "words.txt"
     val dictionary = mutableListOf<Word>()
+
     try {
         File(filename).forEachLine { line ->
             val parts = line.split("|").map { it.trim() }
@@ -37,7 +38,39 @@ fun main() {
         print("Выберите пункт меню: ")
         val input = scanner.nextLine()
         when (input) {
-            "1" -> println("Вы выбрали пункт 'Учить слова'")
+            "1" -> {
+                while (true) {
+                    val notLearnedList = dictionary.filter { it.correctAnswersCount < 3 }
+                    if (notLearnedList.isEmpty()) {
+                        println("Все слова в словаре выучены")
+                        break
+                    }
+                    val questionWords = notLearnedList.shuffled().take(4)
+                    val correctAnswer = questionWords.random()
+                    println()
+                    println("${correctAnswer.original}:")
+                    val answerOptions = questionWords.shuffled()
+                    for (i in answerOptions.indices) {
+                        println("${i + 1} - ${answerOptions[i].translated}")
+                    }
+                    print("Ваш ответ (1-${answerOptions.size}): ")
+                    val userAnswerInput = scanner.nextLine()
+                    val userAnswerIndex = userAnswerInput.toIntOrNull()
+                    if (userAnswerIndex != null && userAnswerIndex in 1..answerOptions.size) {
+                        val userAnswer = answerOptions[userAnswerIndex - 1]
+
+                        if (userAnswer == correctAnswer) {
+                            println("Правильно!")
+                            correctAnswer.correctAnswersCount++
+                        } else {
+                            println("Неправильно. Правильный ответ: ${correctAnswer.translated}")
+                        }
+                    } else {
+                        println("Некорректный ввод. Пожалуйста, введите число от 1 до ${answerOptions.size}")
+                    }
+                }
+            }
+
             "2" -> {
                 val learnedWords = dictionary.filter { it.correctAnswersCount >= 3 }
                 val totalCount = dictionary.size
@@ -46,10 +79,12 @@ fun main() {
                 println("Выучено $learnedCount из $totalCount слов | $percent%")
                 println()
             }
+
             "0" -> {
                 println("Выход из программы...")
                 return
             }
+
             else -> println("Предупреждение: Введите число 1, 2 или 0")
         }
     }
