@@ -10,7 +10,6 @@ data class Word(
 fun loadDictionary(): List<Word> {
     val filename = "words.txt"
     val dictionary = mutableListOf<Word>()
-
     try {
         File(filename).forEachLine { line ->
             val parts = line.split("|").map { it.trim() }
