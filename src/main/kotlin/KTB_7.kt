@@ -10,9 +10,11 @@ data class Word(
 fun loadDictionary(): List<Word> {
     val filename = "words.txt"
     val dictionary = mutableListOf<Word>()
+
     try {
         File(filename).forEachLine { line ->
             val parts = line.split("|").map { it.trim() }
+
             if (parts.size < 2) {
                 println("Ошибка: Некорректный формат строки (отсутствует разделитель '|'): $line")
                 return@forEachLine
@@ -29,9 +31,22 @@ fun loadDictionary(): List<Word> {
     return dictionary.toList()
 }
 
+fun saveDictionary(dictionary: List<Word>, filename: String = "words.txt") {
+    try {
+        File(filename).printWriter().use { out ->
+            dictionary.forEach { word ->
+                out.println("${word.original}|${word.translated}|${word.correctAnswersCount}")
+            }
+        }
+    } catch (e: Exception) {
+        println("Ошибка при сохранении словаря: ${e.message}")
+    }
+}
+
 fun main() {
-    val dictionary: List<Word> = loadDictionary()
+    var dictionary: List<Word> = loadDictionary()
     val scanner = Scanner(System.`in`)
+    val filename = "words.txt"
     while (true) {
         println("Меню: 1 – Учить слова 2 – Статистика 0 – Выход")
         print("Выберите пункт меню: ")
@@ -44,6 +59,7 @@ fun main() {
                         println("Все слова в словаре выучены")
                         break
                     }
+
                     val questionWords = notLearnedList.shuffled().take(4)
                     val correctAnswer = questionWords.random()
                     println()
@@ -52,20 +68,28 @@ fun main() {
                     for (i in answerOptions.indices) {
                         println("${i + 1} - ${answerOptions[i].translated}")
                     }
-                    print("Ваш ответ (1-${answerOptions.size}): ")
+                    println("----------")
+                    println("0 - Меню")
+                    print("Ваш ответ (0-${answerOptions.size}): ")
                     val userAnswerInput = scanner.nextLine()
-                    val userAnswerIndex = userAnswerInput.toIntOrNull()
-                    if (userAnswerIndex != null && userAnswerIndex in 1..answerOptions.size) {
-                        val userAnswer = answerOptions[userAnswerIndex - 1]
+                    when (userAnswerInput) {
+                        "0" -> break
+                        else -> {
+                            val userAnswerIndex = userAnswerInput.toIntOrNull()
+                            if (userAnswerIndex != null && userAnswerIndex in 1..answerOptions.size) {
+                                val userAnswer = answerOptions[userAnswerIndex - 1]
 
-                        if (userAnswer == correctAnswer) {
-                            println("Правильно!")
-                            correctAnswer.correctAnswersCount++
-                        } else {
-                            println("Неправильно. Правильный ответ: ${correctAnswer.translated}")
+                                if (userAnswer == correctAnswer) {
+                                    println("Правильно!")
+                                    correctAnswer.correctAnswersCount++
+                                    saveDictionary(dictionary, filename)
+                                } else {
+                                    println("Неправильно! ${correctAnswer.original} – это ${correctAnswer.translated}")
+                                }
+                            } else {
+                                println("Некорректный ввод. Пожалуйста, введите число от 0 до ${answerOptions.size}")
+                            }
                         }
-                    } else {
-                        println("Некорректный ввод. Пожалуйста, введите число от 1 до ${answerOptions.size}")
                     }
                 }
             }
