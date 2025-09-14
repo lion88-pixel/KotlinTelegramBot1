@@ -7,6 +7,8 @@ data class Word(
     var correctAnswersCount: Int = 0
 )
 
+private const val LEARNED_THRESHOLD = 3
+
 fun loadDictionary(): List<Word> {
     val filename = "words.txt"
     val dictionary = mutableListOf<Word>()
@@ -54,7 +56,7 @@ fun main() {
         when (input) {
             "1" -> {
                 while (true) {
-                    val notLearnedList = dictionary.filter { it.correctAnswersCount < 3 }
+                    val notLearnedList = dictionary.filter { it.correctAnswersCount < LEARNED_THRESHOLD }
                     if (notLearnedList.isEmpty()) {
                         println("Все слова в словаре выучены")
                         break
@@ -95,12 +97,11 @@ fun main() {
             }
 
             "2" -> {
-                val learnedWords = dictionary.filter { it.correctAnswersCount >= 3 }
+                val learnedWords = dictionary.filter { it.correctAnswersCount >= LEARNED_THRESHOLD }
                 val totalCount = dictionary.size
                 val learnedCount = learnedWords.size
                 val percent = if (totalCount > 0) (learnedCount.toDouble() / totalCount * 100).toInt() else 0
-                println("Выучено $learnedCount из $totalCount слов | $percent%")
-                println()
+                println("Выучено $learnedCount из $totalCount слов | $percent%\n")
             }
 
             "0" -> {
