@@ -34,11 +34,15 @@ fun main() {
                         println(question.asConsoleString())
                         val userAnswerInput = readln().toIntOrNull()
                         if (userAnswerInput == 0) break
-
+                        if (userAnswerInput == null || userAnswerInput !in 1..question.variants.size) {
+                            println("Некорректный ввод, введите число от 0 до ${question.variants.size}")
+                            continue
+                        }
                         if (trainer.checkAnswer(userAnswerInput?.minus(1))) {
                             println("Правильно!\n")
                         } else {
-                            println("Неправильно! ${question.correctAnswer.questionWord}- это ${question.correctAnswer.translate}\n")
+                            val correct = question.correctAnswer
+                            println("Неправильно! ${correct.questionWord}- это ${correct.translate}\n")
                         }
                     }
                 }

@@ -18,9 +18,10 @@ class LearnWordsTrainer(val learnedAnswerCount: Int = 3, private val countOfQues
     private val dictionary = loadDictionary()
 
     fun getStatistics(): Statistics {
-        val learned = dictionary.filter { it.correctAnswersCount >= 3 }.size
         val total = dictionary.size
-        val percent = learned * 100 / total
+        val learned = dictionary.count { it.correctAnswersCount >= learnedAnswerCount }
+        val percent = if (total > 0)
+            learned * 100 / total else 0
         return Statistics(learned, total, percent)
     }
 
@@ -73,9 +74,13 @@ class LearnWordsTrainer(val learnedAnswerCount: Int = 3, private val countOfQues
 
     private fun saveDictionary(words: List<Word>) {
         val wordsFile = File("words.txt")
-        wordsFile.writeText(" ")
-        for (word in words) {
-            wordsFile.appendText("${word.questionWord}|${word.translate}|${word.correctAnswersCount}\n")
+        wordsFile.printWriter().use { out ->
+            words.forEach { word ->
+                out.println(
+                    "${word.questionWord}|${word.translate}|" +
+                            "${word.correctAnswersCount}\n"
+                )
+            }
         }
     }
 }
