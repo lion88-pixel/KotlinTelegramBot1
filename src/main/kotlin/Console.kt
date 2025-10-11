@@ -1,0 +1,60 @@
+data class Word(
+    val questionWord: String,
+    val translate: String,
+    var correctAnswersCount: Int = 0,
+)
+
+fun Question.asConsoleString(): String {
+    val variants = this.variants
+        .mapIndexed { index: Int, word: Word -> "${index + 1} - ${word.translate}" }
+        .joinToString(separator = "\n")
+    return this.correctAnswer.questionWord + "\n" + variants + "\n 0 - выйти в меню"
+}
+
+fun main() {
+
+    val trainer = try {
+        LearnWordsTrainer(3, 4)
+    } catch (e: Exception) {
+        println("Невозможно загрузить словарь")
+        return
+    }
+
+    while (true) {
+
+        println("Меню: 1 - Учить слова, 2 - Статистика, 0 - Выход")
+        when (readln().toIntOrNull()) {
+            1 -> {
+                while (true) {
+                    val question = trainer.getNextQuestion()
+                    if (question == null) {
+                        println("Все слова выучены")
+                        break
+                    } else {
+                        println(question.asConsoleString())
+                        val userAnswerInput = readln().toIntOrNull()
+                        if (userAnswerInput == 0) break
+                        if (userAnswerInput == null || userAnswerInput !in 1..question.variants.size) {
+                            println("Некорректный ввод, введите число от 0 до ${question.variants.size}")
+                            continue
+                        }
+                        if (trainer.checkAnswer(userAnswerInput?.minus(1))) {
+                            println("Правильно!\n")
+                        } else {
+                            val correct = question.correctAnswer
+                            println("Неправильно! ${correct.questionWord}- это ${correct.translate}\n")
+                        }
+                    }
+                }
+            }
+
+            2 -> {
+                val statistics = trainer.getStatistics()
+                println("Выученo ${statistics.learned} из ${statistics.total} слов | ${statistics.percent}%")
+            }
+
+            0 -> break
+            else -> println("Введите 1, 2 или 0")
+        }
+    }
+}
