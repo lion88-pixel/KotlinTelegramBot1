@@ -78,7 +78,7 @@ class LearnWordsTrainer(val learnedAnswerCount: Int = 3, private val countOfQues
             words.forEach { word ->
                 out.println(
                     "${word.questionWord}|${word.translate}|" +
-                            "${word.correctAnswersCount}\n"
+                            "${word.correctAnswersCount}"
                 )
             }
         }
